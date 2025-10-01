@@ -1,0 +1,80 @@
+// frontend/src/pages/Home.jsx
+// Page d'accueil : affiche la liste des questions récentes avec tags, auteur, etc.
+// Place ce fichier dans frontend/src/pages/
+// Utilise Tailwind/DaisyUI pour le style
+
+import { useEffect, useState } from 'react';
+import axios from 'axios';
+import { toast } from 'react-hot-toast';
+import { Link, useSearchParams } from 'react-router-dom';
+
+export default function Home() {
+  // State pour stocker les questions
+  const [questions, setQuestions] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [searchParams] = useSearchParams();
+  const tagFilter = searchParams.get('tag') || '';
+
+  // Récupère les questions au chargement de la page ou quand le tag change
+  useEffect(() => {
+    setLoading(true);
+    let url = 'http://localhost:3001/api/questions';
+    if (tagFilter) url += `?tag=${encodeURIComponent(tagFilter)}`;
+    axios.get(url)
+      .then(res => {
+        setQuestions(res.data.questions || []);
+        setLoading(false);
+      })
+      .catch(() => {
+        setError('Erreur lors du chargement des questions');
+        toast.error('Erreur lors du chargement des questions');
+        setLoading(false);
+      });
+  }, [tagFilter]);
+
+  if (loading) return <div className="flex justify-center items-center h-40">Chargement...</div>;
+  if (error) return <div className="text-red-500 text-center">{error}</div>;
+
+  return (
+    <div className="max-w-3xl mx-auto p-4">
+      <h1 className="text-2xl font-bold mb-6">Questions récentes</h1>
+      {questions.length === 0 ? (
+        <div className="text-center text-gray-500">Aucune question pour le moment.</div>
+      ) : (
+        <div className="space-y-4">
+          {questions.map(q => (
+            <div key={q.id} className="card bg-base-100 shadow p-4">
+              <div className="flex items-center gap-2 mb-2">
+                {/* Affiche les tags cliquables, style dynamique selon le thème */}
+                {q.tags && Array.isArray(q.tags) && q.tags.map(tag => (
+                  <Link
+                    key={tag.id}
+                    to={`/?tag=${encodeURIComponent(tag.name)}`}
+                    className={`transition-colors duration-200 px-3 py-1 text-xs font-semibold cursor-pointer select-none
+                      tag-badge
+                    `}
+                    style={{
+                      background: tag.color,
+                      color: '#fff',
+                    }}
+                  >
+                    {tag.name}
+                  </Link>
+                ))}
+              </div>
+              <h2 className="font-semibold text-lg mb-1">{q.title}</h2>
+              <p className="text-gray-600 mb-2 line-clamp-2">{q.content}</p>
+              <div className="flex items-center justify-between text-sm text-gray-500">
+                <span>par {q.author?.username}</span>
+                <span>{new Date(q.created_at).toLocaleDateString()}</span>
+                <span>{q.views} vues</span>
+                <span>{q.votes} votes</span>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}

@@ -5,7 +5,11 @@ require('dotenv').config(); // Charger les variables d'environnement dès le dé
 
 // Importer les routes
 const authRoutes = require('./routes/auth');
-const questionRoutes = require('./routes/questions'); 
+const questionRoutes = require('./routes/questions');
+const answerRoutes = require('./routes/answers');
+const voteRoutes = require('./routes/votes');
+const tagRoutes = require('./routes/tags');
+const statsRoutes = require('./routes/stats'); // Ajoute cette ligne pour importer les routes stats
 // Importer les middlewares
 const { protect } = require('./middleware/auth');
 
@@ -23,6 +27,10 @@ require('./db/connection');
 // Définition des routes de l'API
 app.use('/api/auth', authRoutes); // Routes d'authentification
 app.use('/api/questions', questionRoutes); // Routes des questions
+app.use('/api/answers', answerRoutes); // Routes des réponses
+app.use('/api/votes', voteRoutes); // Routes des votes
+app.use('/api/tags', tagRoutes); // Routes des tags
+app.use('/api/stats', statsRoutes); // Routes des stats
 
 // Exemple de route protégée (pour plus tard)
 // app.get('/api/protected', protect, (req, res) => {

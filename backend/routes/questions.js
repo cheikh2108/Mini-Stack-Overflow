@@ -1,6 +1,4 @@
-// backend/routes/questions.js
 // Ce fichier gère toutes les routes liées aux questions (CRUD, listing, etc.)
-// Place ce fichier dans le dossier backend/routes/
 
 const express = require('express');
 const router = express.Router();
@@ -47,7 +45,7 @@ router.post('/', protect, async (req, res) => {
             SELECT 
                 q.id, q.title, q.content, q.views, q.votes, q.created_at, q.updated_at,
                 JSON_OBJECT('id', p.id, 'username', p.username, 'avatar_url', p.avatar_url) AS author,
-                (SELECT JSON_ARRAYAGG(JSON_OBJECT('id', t.id, 'name', t.name, 'color', t.color))
+                (SELECT CONCAT('[', GROUP_CONCAT(JSON_OBJECT('id', t.id, 'name', t.name, 'color', t.color)), ']')
                  FROM question_tags qt
                  JOIN tags t ON qt.tag_id = t.id
                  WHERE qt.question_id = q.id) AS tags
@@ -68,39 +66,69 @@ router.post('/', protect, async (req, res) => {
     }
 });
 // @desc    Lister toutes les questions (avec pagination et tags associés)
+
 router.get('/', async (req, res) => {
-  // Indice : récupère les questions avec un JOIN pour les tags
-  // Option : ajoute la pagination (limit, offset)
-  const page = parseInt(req.query.page) || 1;
-  const limit = parseInt(req.query.limit) || 10;
-  const offset = (page - 1) * limit;
+    // Pagination
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const offset = (page - 1) * limit;
+    const tagFilter = req.query.tag;
 
     try {
-        const [totalResults] = await pool.query('SELECT COUNT(id) AS total_count FROM questions');
+        let questionsQuery;
+        let queryParams = [];
+        let countQuery;
+        let countParams = [];
+
+        if (tagFilter) {
+            // Filtrer par tag (par nom de tag)
+            questionsQuery = `
+                SELECT
+                    q.id, q.title, q.content, q.views, q.votes, q.created_at, q.updated_at,
+                    JSON_OBJECT('id', p.id, 'username', p.username, 'avatar_url', p.avatar_url) AS author,
+                    CONCAT('[', GROUP_CONCAT(JSON_OBJECT('id', t.id, 'name', t.name, 'color', t.color)), ']') AS tags
+                FROM questions q
+                JOIN profiles p ON q.author_id = p.id
+                JOIN question_tags qt ON q.id = qt.question_id
+                JOIN tags t ON qt.tag_id = t.id
+                WHERE t.name = ?
+                GROUP BY q.id
+                ORDER BY q.created_at DESC
+                LIMIT ? OFFSET ?
+            `;
+            queryParams = [tagFilter, limit, offset];
+            countQuery = `
+                SELECT COUNT(DISTINCT q.id) AS total_count
+                FROM questions q
+                JOIN question_tags qt ON q.id = qt.question_id
+                JOIN tags t ON qt.tag_id = t.id
+                WHERE t.name = ?
+            `;
+            countParams = [tagFilter];
+        } else {
+            // Pas de filtre tag, toutes les questions
+            questionsQuery = `
+                SELECT
+                    q.id, q.title, q.content, q.views, q.votes, q.created_at, q.updated_at,
+                    JSON_OBJECT('id', p.id, 'username', p.username, 'avatar_url', p.avatar_url) AS author,
+                    CONCAT('[', GROUP_CONCAT(JSON_OBJECT('id', t.id, 'name', t.name, 'color', t.color)), ']') AS tags
+                FROM questions q
+                JOIN profiles p ON q.author_id = p.id
+                LEFT JOIN question_tags qt ON q.id = qt.question_id
+                LEFT JOIN tags t ON qt.tag_id = t.id
+                GROUP BY q.id
+                ORDER BY q.created_at DESC
+                LIMIT ? OFFSET ?
+            `;
+            queryParams = [limit, offset];
+            countQuery = 'SELECT COUNT(id) AS total_count FROM questions';
+            countParams = [];
+        }
+
+        const [totalResults] = await pool.query(countQuery, countParams);
         const totalCount = totalResults[0].total_count;
         const totalPages = Math.ceil(totalCount / limit);
-        const questionsQuery = `
-            SELECT
-                q.id, q.title, q.content, q.views, q.votes, q.created_at, q.updated_at,
-                -- Joindre les informations de l'auteur
-                JSON_OBJECT('id', p.id, 'username', p.username, 'avatar_url', p.avatar_url) AS author,
-                -- Utiliser GROUP_CONCAT et JSON_OBJECT pour agréger les tags en un seul champ JSON
-                JSON_ARRAYAGG(
-                    JSON_OBJECT('id', t.id, 'name', t.name, 'color', t.color)
-                ) AS tags
-            FROM questions q
-            JOIN profiles p ON q.author_id = p.id
-            -- LEFT JOIN pour s'assurer que même les questions sans tag apparaissent
-            LEFT JOIN question_tags qt ON q.id = qt.question_id
-            LEFT JOIN tags t ON qt.tag_id = t.id
-            -- Regrouper par question pour agréger tous les tags dans le champ 'tags'
-            GROUP BY q.id
-            -- Trier par date de création (du plus récent au plus ancien)
-            ORDER BY q.created_at DESC
-            -- Appliquer la pagination
-            LIMIT ? OFFSET ?
-        `;
-        const [questions] = await pool.query(questionsQuery, [limit, offset]);
+        const [questions] = await pool.query(questionsQuery, queryParams);
 
         const responseData = {
             pagination: {
@@ -154,9 +182,7 @@ router.get('/:id', async (req, res) => {
                 -- Joindre les informations de l'auteur (Profile)
                 JSON_OBJECT('id', p.id, 'username', p.username, 'avatar_url', p.avatar_url, 'reputation', p.reputation) AS author,
                 -- Agréger tous les tags associés
-                JSON_ARRAYAGG(
-                    JSON_OBJECT('id', t.id, 'name', t.name, 'color', t.color)
-                ) AS tags
+                CONCAT('[', GROUP_CONCAT(JSON_OBJECT('id', t.id, 'name', t.name, 'color', t.color)), ']') AS tags
             FROM questions q
             JOIN profiles p ON q.author_id = p.id
             -- LEFT JOIN pour récupérer les tags
