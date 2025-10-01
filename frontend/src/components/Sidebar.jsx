@@ -41,17 +41,20 @@ export default function Sidebar() {
       <h1 className="text-2xl font-bold text-primary mb-6">MiniStack</h1>
       <nav>
         <ul className="space-y-2">
-          {categories.map(({ name, icon: Icon, path }) => (
-            <li key={name}>
-              <Link
-                to={path}
-                className={`flex items-center gap-3 px-3 py-2 rounded hover:bg-primary/10 transition ${location.pathname === path ? 'bg-primary/20 font-semibold' : ''}`}
-              >
-                <Icon className="w-5 h-5" />
-                {name}
-              </Link>
-            </li>
-          ))}
+          {categories.map((cat) => {
+            const Icon = cat.icon;
+            return (
+              <li key={cat.name}>
+                <Link
+                  to={cat.path}
+                  className={`flex items-center gap-3 px-3 py-2 rounded hover:bg-primary/10 transition ${location.pathname === cat.path ? 'bg-primary/20 font-semibold' : ''}`}
+                >
+                  <Icon className="w-5 h-5" />
+                  {cat.name}
+                </Link>
+              </li>
+            );
+          })}
         </ul>
       </nav>
       <div>
