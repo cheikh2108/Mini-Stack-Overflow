@@ -1,7 +1,4 @@
-// frontend/src/layouts/MainLayout.jsx
 // Layout principal : Sidebar à gauche, Header en haut, contenu au centre
-// Place ce fichier dans frontend/src/layouts/
-// Utilise DaisyUI/Tailwind pour le style
 
 import Sidebar from '../components/Sidebar';
 import Header from '../components/Header';

@@ -3,6 +3,9 @@ import { Toaster } from 'react-hot-toast';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import MainLayout from './layouts/MainLayout';
 import Home from './pages/Home';
+import AskQuestion from './pages/AskQuestion';
+import Login from './pages/Login';
+import Signup from './pages/Signup';
 
 
 const App = () => {
@@ -30,7 +33,10 @@ const App = () => {
         <MainLayout>
           <Routes>
             <Route path="/" element={<Home />} />
-            {/* Ajoute ici d'autres routes (Ask, Profile, etc.) plus tard */}
+            <Route path="/ask" element={<AskQuestion />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/signup" element={<Signup />} />
+            {/* Ajoute ici d'autres routes (Profile, etc.) plus tard */}
           </Routes>
         </MainLayout>
       </BrowserRouter>

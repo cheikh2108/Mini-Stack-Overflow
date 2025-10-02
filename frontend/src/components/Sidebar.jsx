@@ -1,8 +1,4 @@
-// frontend/src/components/Sidebar.jsx
 // Sidebar de navigation avancée (catégories, tags, stats, etc.)
-// Place ce fichier dans frontend/src/components/
-// Utilise DaisyUI/Tailwind pour le style
-// Utilise Lucide React pour les icônes
 
 import { Home, LayoutDashboard, Server, Smartphone, Database, Code, Globe } from 'lucide-react';
 import { useState, useEffect } from 'react';
@@ -27,7 +23,7 @@ export default function Sidebar() {
 
   // Récupère les tags populaires et stats au chargement
   useEffect(() => {
-    // À adapter selon ton backend
+    
     axios.get('http://localhost:3001/api/tags')
       .then(res => setTags(res.data.tags || []))
       .catch(() => setTags([]));

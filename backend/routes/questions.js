@@ -136,14 +136,13 @@ router.get('/', async (req, res) => {
                 totalPages: totalPages,
                 currentPage: page,
                 limit: limit
-
             },
             questions: questions.map(q => ({
                 ...q,
                 tags: q.tags ? JSON.parse(q.tags) : [] // Convertir la chaîne JSON en tableau
             }))
-            
         };
+        return res.json(responseData);
     } catch (error) {
         console.error("Erreur lors de la récupération des questions :", error);
         return res.status(500).json({ 

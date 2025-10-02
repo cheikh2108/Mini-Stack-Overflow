@@ -1,6 +1,4 @@
-// frontend/src/components/ThemeSwitcher.jsx
 // Composant pour basculer entre le thème clair (winter) et sombre (business) avec DaisyUI
-// Place ce fichier dans frontend/src/components/
 
 import { useEffect, useState } from 'react';
 import { Sun, Moon } from 'lucide-react'; // Icônes modernes
