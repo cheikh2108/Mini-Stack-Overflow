@@ -18,16 +18,18 @@ export default function LoginModal({ open, onClose, onSwitch }) {
         email,
         password
       });
-      const { token } = res.data;
+      const { token, user } = res.data;
       if (token) {
         localStorage.setItem('token', token);
+        if (user) localStorage.setItem('user', JSON.stringify(user));
         toast.success('Connexion réussie !');
         onClose();
         window.location.reload();
       } else {
         toast.error('Token manquant dans la réponse.');
       }
-    } catch {
+    } catch (err) {
+      console.error(err);
       toast.error('Email ou mot de passe incorrect.');
     } finally {
       setLoading(false);

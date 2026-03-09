@@ -7,12 +7,12 @@ import { Link, useLocation } from 'react-router-dom';
 
 const categories = [
   { name: 'Toutes les questions', icon: Home, path: '/' },
-  { name: 'Frontend', icon: LayoutDashboard, path: '/frontend' },
-  { name: 'Backend', icon: Server, path: '/backend' },
-  { name: 'Mobile', icon: Smartphone, path: '/mobile' },
-  { name: 'Base de données', icon: Database, path: '/database' },
-  { name: 'DevOps', icon: Code, path: '/devops' },
-  { name: 'Web', icon: Globe, path: '/web' },
+  { name: 'Frontend', icon: LayoutDashboard, path: '/?tag=Frontend' },
+  { name: 'Backend', icon: Server, path: '/?tag=Backend' },
+  { name: 'Mobile', icon: Smartphone, path: '/?tag=Mobile' },
+  { name: 'Base de données', icon: Database, path: '/?tag=Database' },
+  { name: 'DevOps', icon: Code, path: '/?tag=DevOps' },
+  { name: 'Web', icon: Globe, path: '/?tag=Web' },
 ];
 
 export default function Sidebar() {
@@ -43,7 +43,7 @@ export default function Sidebar() {
               <li key={cat.name}>
                 <Link
                   to={cat.path}
-                  className={`flex items-center gap-3 px-3 py-2 rounded hover:bg-primary/10 transition ${location.pathname === cat.path ? 'bg-primary/20 font-semibold' : ''}`}
+                  className={`flex items-center gap-3 px-3 py-2 rounded hover:bg-primary/10 transition ${location.pathname + location.search === cat.path || (location.pathname === '/' && location.search === '' && cat.path === '/') ? 'bg-primary/20 font-semibold' : ''}`}
                 >
                   <Icon className="w-5 h-5" />
                   {cat.name}

@@ -73,6 +73,7 @@ router.get('/', async (req, res) => {
     const limit = parseInt(req.query.limit) || 10;
     const offset = (page - 1) * limit;
     const tagFilter = req.query.tag;
+    const searchQuery = req.query.search;
 
     try {
         let questionsQuery;
@@ -80,50 +81,45 @@ router.get('/', async (req, res) => {
         let countQuery;
         let countParams = [];
 
+        let whereClauses = [];
         if (tagFilter) {
-            // Filtrer par tag (par nom de tag)
-            questionsQuery = `
-                SELECT
-                    q.id, q.title, q.content, q.views, q.votes, q.created_at, q.updated_at,
-                    JSON_OBJECT('id', p.id, 'username', p.username, 'avatar_url', p.avatar_url) AS author,
-                    CONCAT('[', GROUP_CONCAT(JSON_OBJECT('id', t.id, 'name', t.name, 'color', t.color)), ']') AS tags
-                FROM questions q
-                JOIN profiles p ON q.author_id = p.id
-                JOIN question_tags qt ON q.id = qt.question_id
-                JOIN tags t ON qt.tag_id = t.id
-                WHERE t.name = ?
-                GROUP BY q.id
-                ORDER BY q.created_at DESC
-                LIMIT ? OFFSET ?
-            `;
-            queryParams = [tagFilter, limit, offset];
-            countQuery = `
-                SELECT COUNT(DISTINCT q.id) AS total_count
-                FROM questions q
-                JOIN question_tags qt ON q.id = qt.question_id
-                JOIN tags t ON qt.tag_id = t.id
-                WHERE t.name = ?
-            `;
-            countParams = [tagFilter];
-        } else {
-            // Pas de filtre tag, toutes les questions
-            questionsQuery = `
-                SELECT
-                    q.id, q.title, q.content, q.views, q.votes, q.created_at, q.updated_at,
-                    JSON_OBJECT('id', p.id, 'username', p.username, 'avatar_url', p.avatar_url) AS author,
-                    CONCAT('[', GROUP_CONCAT(JSON_OBJECT('id', t.id, 'name', t.name, 'color', t.color)), ']') AS tags
-                FROM questions q
-                JOIN profiles p ON q.author_id = p.id
-                LEFT JOIN question_tags qt ON q.id = qt.question_id
-                LEFT JOIN tags t ON qt.tag_id = t.id
-                GROUP BY q.id
-                ORDER BY q.created_at DESC
-                LIMIT ? OFFSET ?
-            `;
-            queryParams = [limit, offset];
-            countQuery = 'SELECT COUNT(id) AS total_count FROM questions';
-            countParams = [];
+            whereClauses.push('t.name = ?');
+            queryParams.push(tagFilter);
+            countParams.push(tagFilter);
         }
+        if (searchQuery) {
+            whereClauses.push('(q.title LIKE ? OR q.content LIKE ?)');
+            const likeQuery = `%${searchQuery}%`;
+            queryParams.push(likeQuery, likeQuery);
+            countParams.push(likeQuery, likeQuery);
+        }
+
+        const whereString = whereClauses.length > 0 ? `WHERE ${whereClauses.join(' AND ')}` : '';
+
+        questionsQuery = `
+            SELECT
+                q.id, q.title, q.content, q.views, q.votes, q.created_at, q.updated_at,
+                JSON_OBJECT('id', p.id, 'username', p.username, 'avatar_url', p.avatar_url) AS author,
+                (SELECT CONCAT('[', GROUP_CONCAT(JSON_OBJECT('id', t.id, 'name', t.name, 'color', t.color)), ']')
+                 FROM question_tags qt
+                 JOIN tags t ON qt.tag_id = t.id
+                 WHERE qt.question_id = q.id) AS tags
+            FROM questions q
+            JOIN profiles p ON q.author_id = p.id
+            ${tagFilter ? 'JOIN question_tags qt_filter ON q.id = qt_filter.question_id JOIN tags t ON qt_filter.tag_id = t.id' : ''}
+            ${whereString}
+            GROUP BY q.id
+            ORDER BY q.created_at DESC
+            LIMIT ? OFFSET ?
+        `;
+        queryParams.push(limit, offset);
+
+        countQuery = `
+            SELECT COUNT(DISTINCT q.id) AS total_count
+            FROM questions q
+            ${tagFilter ? 'JOIN question_tags qt_filter ON q.id = qt_filter.question_id JOIN tags t ON qt_filter.tag_id = t.id' : ''}
+            ${whereString}
+        `;
 
         const [totalResults] = await pool.query(countQuery, countParams);
         const totalCount = totalResults[0].total_count;

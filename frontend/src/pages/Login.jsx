@@ -18,9 +18,10 @@ export default function Login() {
         username,
         password
       });
-      const { token } = res.data;
+      const { token, user } = res.data;
       if (token) {
         localStorage.setItem('token', token);
+        if (user) localStorage.setItem('user', JSON.stringify(user));
         toast.success('Connexion réussie !');
         navigate('/');
       } else {

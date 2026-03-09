@@ -6,6 +6,8 @@ import Home from './pages/Home';
 import AskQuestion from './pages/AskQuestion';
 import Login from './pages/Login';
 import Signup from './pages/Signup';
+import QuestionDetail from './pages/QuestionDetail';
+import Profile from './pages/Profile';
 
 
 const App = () => {
@@ -36,7 +38,8 @@ const App = () => {
             <Route path="/ask" element={<AskQuestion />} />
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<Signup />} />
-            {/* Ajoute ici d'autres routes (Profile, etc.) plus tard */}
+            <Route path="/questions/:id" element={<QuestionDetail />} />
+            <Route path="/profile" element={<Profile />} />
           </Routes>
         </MainLayout>
       </BrowserRouter>
