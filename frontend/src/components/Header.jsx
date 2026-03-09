@@ -2,6 +2,7 @@
 
 import { Plus, Search, User } from 'lucide-react';
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-hot-toast';
 import ThemeSwitcher from './ThemeSwitcher';
 import Modal from './Modal';
@@ -14,6 +15,8 @@ export default function Header() {
   const [isAuth, setIsAuth] = useState(false);
   const [showLogin, setShowLogin] = useState(false);
   const [showSignup, setShowSignup] = useState(false);
+  const [search, setSearch] = useState('');
+  const navigate = useNavigate();
 
   useEffect(() => {
     setIsAuth(!!localStorage.getItem('token'));
@@ -21,18 +24,29 @@ export default function Header() {
     return () => window.removeEventListener('storage', () => setIsAuth(!!localStorage.getItem('token')));
   }, []);
   // À terme, tu pourras ajouter la gestion de l'utilisateur connecté ici
+  const handleSearch = (e) => {
+    e.preventDefault();
+    if (search.trim()) {
+      navigate(`/?search=${encodeURIComponent(search.trim())}`);
+    } else {
+      navigate('/');
+    }
+  };
+
   return (
     <>
       <header className="w-full bg-base-100 border-b flex items-center justify-between px-6 py-3 sticky top-0 z-40">
         {/* Logo + recherche */}
         <div className="flex items-center gap-4">
           <a href="/" className="text-xl font-bold text-primary">MiniStack</a>
-          <form className="hidden md:block">
+          <form className="hidden md:block" onSubmit={handleSearch}>
             <div className="relative">
               <input
                 type="text"
                 placeholder="Rechercher des questions..."
                 className="input input-bordered pl-10 w-80"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
               />
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
             </div>
@@ -58,6 +72,7 @@ export default function Header() {
                     onClick={() => {
                       if (window.confirm('Voulez-vous vraiment vous déconnecter ?')) {
                         localStorage.removeItem('token');
+                        localStorage.removeItem('user');
                         setIsAuth(false);
                         toast.success('Déconnexion réussie !');
                         setTimeout(() => window.location.reload(), 600);

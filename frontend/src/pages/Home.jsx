@@ -6,6 +6,7 @@ import axios from 'axios';
 import { toast } from 'react-hot-toast';
 import { Link, useSearchParams } from 'react-router-dom';
 import { User } from 'lucide-react';
+import VoteButtons from '../components/VoteButtons';
 
 export default function Home() {
   const [questions, setQuestions] = useState([]);
@@ -13,12 +14,19 @@ export default function Home() {
   const [error, setError] = useState(null);
   const [searchParams] = useSearchParams();
   const tagFilter = searchParams.get('tag') || '';
+  const searchQuery = searchParams.get('search') || '';
 
   // Fonction pour charger les questions (réutilisable)
   const fetchQuestions = useCallback(() => {
     setLoading(true);
     let url = 'http://localhost:3001/api/questions';
-    if (tagFilter) url += `?tag=${encodeURIComponent(tagFilter)}`;
+    const params = new URLSearchParams();
+    if (tagFilter) params.append('tag', tagFilter);
+    if (searchQuery) params.append('search', searchQuery);
+
+    const queryString = params.toString();
+    if (queryString) url += `?${queryString}`;
+
     axios.get(url)
       .then(res => {
         setQuestions(res.data.questions || []);
@@ -29,7 +37,7 @@ export default function Home() {
         toast.error('Erreur lors du chargement des questions');
         setLoading(false);
       });
-  }, [tagFilter]);
+  }, [tagFilter, searchQuery]);
 
   useEffect(() => {
     fetchQuestions();
@@ -53,7 +61,15 @@ export default function Home() {
       ) : (
         <div className="space-y-4">
           {questions.map(q => (
-            <div key={q.id} className="card bg-base-100 shadow p-4 hover:shadow-lg transition-shadow">
+            <div key={q.id} className="card bg-base-100 shadow p-4 hover:shadow-lg transition-shadow flex-row gap-4">
+              <div className="flex flex-col items-center">
+                <VoteButtons
+                  votableId={q.id}
+                  votableType="question"
+                  initialVotes={q.votes}
+                />
+              </div>
+              <div className="flex-1">
               <div className="flex items-center gap-2 mb-2 flex-wrap">
                 {q.tags && Array.isArray(q.tags) && q.tags.map(tag => (
                   <Link
@@ -66,7 +82,11 @@ export default function Home() {
                   </Link>
                 ))}
               </div>
-              <h2 className="font-semibold text-lg mb-1 truncate">{q.title}</h2>
+              <Link to={`/questions/${q.id}`}>
+                <h2 className="font-semibold text-lg mb-1 truncate hover:text-primary transition-colors cursor-pointer">
+                  {q.title}
+                </h2>
+              </Link>
               <p className="text-gray-600 mb-2 line-clamp-2">{q.content}</p>
               <div className="flex items-center justify-between text-xs text-gray-500 mt-2">
                 <div className="flex items-center gap-2">
@@ -76,6 +96,7 @@ export default function Home() {
                 <span>{new Date(q.created_at).toLocaleDateString()}</span>
                 <span>{q.views} vues</span>
                 <span>{q.votes} votes</span>
+              </div>
               </div>
             </div>
           ))}
