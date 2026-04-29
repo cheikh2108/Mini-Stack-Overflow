@@ -1,9 +1,9 @@
 // Composant LoginModal : popup moderne pour la connexion
 import { useState } from 'react';
-import axios from 'axios';
 import { toast } from 'react-hot-toast';
 import Modal from '../components/Modal';
 import { User } from 'lucide-react';
+import api from '../lib/api';
 
 export default function LoginModal({ open, onClose, onSwitch }) {
   const [email, setEmail] = useState('');
@@ -14,7 +14,7 @@ export default function LoginModal({ open, onClose, onSwitch }) {
     e.preventDefault();
     setLoading(true);
     try {
-      const res = await axios.post('http://localhost:3001/api/auth/login', {
+      const res = await api.post('/auth/login', {
         email,
         password
       });
@@ -22,9 +22,9 @@ export default function LoginModal({ open, onClose, onSwitch }) {
       if (token) {
         localStorage.setItem('token', token);
         if (user) localStorage.setItem('user', JSON.stringify(user));
+        window.dispatchEvent(new Event('auth-changed'));
         toast.success('Connexion réussie !');
         onClose();
-        window.location.reload();
       } else {
         toast.error('Token manquant dans la réponse.');
       }

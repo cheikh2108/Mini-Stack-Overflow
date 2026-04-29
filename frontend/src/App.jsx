@@ -16,18 +16,21 @@ const App = () => {
     <>
       <Toaster
         position="top-right"
+        gutter={12}
         toastOptions={{
           style: {
-            borderRadius: '8px',
-            background: '#fff',
-            color: '#333',
-            fontWeight: 'bold'
+            borderRadius: '16px',
+            background: 'rgba(255, 255, 255, 0.95)',
+            color: '#111827',
+            fontWeight: 600,
+            border: '1px solid rgba(148, 163, 184, 0.25)',
+            boxShadow: '0 18px 45px rgba(15, 23, 42, 0.12)'
           },
           success: {
-            style: { background: '#d1fae5', color: '#065f46' }
+            style: { background: '#ecfdf5', color: '#065f46' }
           },
           error: {
-            style: { background: '#fee2e2', color: '#991b1b' }
+            style: { background: '#fef2f2', color: '#991b1b' }
           }
         }}
       />

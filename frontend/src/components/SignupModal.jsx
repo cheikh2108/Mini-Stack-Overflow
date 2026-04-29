@@ -1,9 +1,9 @@
 // Composant SignupModal : popup moderne pour l'inscription
 import { useState } from 'react';
-import axios from 'axios';
 import { toast } from 'react-hot-toast';
 import Modal from '../components/Modal';
 import { UserPlus } from 'lucide-react';
+import api from '../lib/api';
 
 export default function SignupModal({ open, onClose, onSwitch }) {
   const [username, setUsername] = useState('');
@@ -15,7 +15,7 @@ export default function SignupModal({ open, onClose, onSwitch }) {
     e.preventDefault();
     setLoading(true);
     try {
-      await axios.post('http://localhost:3001/api/auth/register', {
+      await api.post('/auth/register', {
         username,
         email,
         password

@@ -32,12 +32,13 @@ router.post('/', protect, async (req, res) => {
 
         // Ajouter les liaisons avec les tags
         if (tags.length > 0) {
-            const tag_values = tags.map(tag_id => [question_id, tag_id]);
+            const placeholders = tags.map(() => '(?, ?)').join(', ');
+            const flatValues = tags.flatMap(tag_id => [question_id, tag_id]);
             const tagQuery = `
                 INSERT INTO question_tags (question_id, tag_id)
-                VALUES ?
+                VALUES ${placeholders}
             `;
-            await connection.query(tagQuery, [tag_values]);
+            await connection.query(tagQuery, flatValues);
         }
         await connection.commit();
         // Retourner la question créée
@@ -188,17 +189,17 @@ router.get('/:id', async (req, res) => {
         `;
 
         // Exécution de la requête
-        const result = await pool.query(questionQuery, [id]);
-        
+        const [rows] = await pool.query(questionQuery, [id]);
+
         // Si aucune ligne n'est retournée, la question n'existe pas
-        if (result.length === 0) {
+        if (rows.length === 0) {
             return res.status(404).json({ 
                 message: "Question non trouvée." 
             });
         }
         
         // Récupérer le résultat unique
-        const question = result[0];
+        const question = rows[0];
 
         // --- 3. Former la réponse ---
         
@@ -218,8 +219,8 @@ router.get('/:id', async (req, res) => {
             // Remplacer la chaîne JSON brute par l'objet/tableau parsé
             author: JSON.parse(question.author),
             tags: finalTags,
-            // S'assurer que 'views' est l'entier mis à jour
-            views: question.views + 1
+            // La vue a déjà été incrémentée en base
+            views: question.views
         };
 
         return res.status(200).json(responseData);

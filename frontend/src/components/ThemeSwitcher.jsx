@@ -28,12 +28,14 @@ export default function ThemeSwitcher() {
 
   return (
     <button
-      className="btn btn-ghost btn-circle"
+      className="btn btn-ghost btn-circle text-base-content/70 transition-colors hover:text-base-content focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30"
       onClick={toggleTheme}
       aria-label="Changer le thème"
+      aria-pressed={theme === 'dark'}
       title={theme === 'light' ? 'Passer en mode sombre' : 'Passer en mode clair'}
+      type="button"
     >
-      {theme === 'light' ? <Moon className="w-5 h-5" /> : <Sun className="w-5 h-5" />}
+      {theme === 'light' ? <Moon className="h-5 w-5" aria-hidden="true" /> : <Sun className="h-5 w-5" aria-hidden="true" />}
     </button>
   );
 }

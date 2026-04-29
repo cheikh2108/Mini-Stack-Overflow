@@ -1,21 +1,423 @@
 @import "tailwindcss";
-@plugin "daisyui"  {
+@plugin "daisyui" {
   themes: winter --default, business --prefersdark;
 };
-.tag-badge {
-  border-radius: 0.8rem;
-  opacity: 0.95;
-  transition: opacity 0.2s, filter 0.2s;
-}
-[data-theme='business'] .tag-badge {
-  border-radius: 0.8rem;
-}
-.tag-badge:hover {
-  opacity: 0.7;
-  filter: brightness(0.95);
+
+html {
+  scroll-behavior: smooth;
+  color-scheme: light;
 }
 
-/* Uniformiser le border-radius des boutons dans tous les thèmes */
-.btn, .btn-primary, .btn-outline, .btn-ghost, .btn-circle {
-  border-radius: 0.7rem !important;
+html[data-theme='business'] {
+  color-scheme: dark;
+}
+
+body {
+  @apply min-h-screen overflow-x-hidden;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  touch-action: manipulation;
+  background:
+    radial-gradient(circle at 20% 0%, rgba(59, 130, 246, 0.15), transparent 30%),
+    radial-gradient(circle at 100% 20%, rgba(139, 92, 246, 0.08), transparent 40%),
+    radial-gradient(circle at 80% 100%, rgba(16, 185, 129, 0.08), transparent 35%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.6), rgba(255, 255, 255, 0.3));
+}
+
+[data-theme='business'] body {
+  background:
+    radial-gradient(circle at 20% 0%, rgba(59, 130, 246, 0.1), transparent 30%),
+    radial-gradient(circle at 100% 20%, rgba(139, 92, 246, 0.06), transparent 40%),
+    radial-gradient(circle at 80% 100%, rgba(244, 114, 182, 0.06), transparent 35%),
+    linear-gradient(180deg, rgba(3, 7, 18, 0.6), rgba(3, 7, 18, 0.3));
+}
+
+::selection {
+  @apply bg-primary/20 text-base-content;
+}
+
+button,
+input,
+textarea,
+select {
+  font-family: inherit;
+}
+
+input::placeholder,
+textarea::placeholder {
+  @apply opacity-60;
+}
+
+::-webkit-scrollbar {
+  @apply w-2 h-2;
+}
+
+::-webkit-scrollbar-track {
+  @apply bg-base-200;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-base-300 rounded-full;
+}
+
+.btn {
+  @apply transition-all duration-200;
+}
+
+.card {
+  backdrop-filter: blur(12px);
+}
+
+.tag-badge {
+  @apply transition-all duration-200;
+  opacity: 0.95;
+}
+
+@media (max-width: 640px) {
+  html {
+    font-size: 14px;
+  }
+}
+
+/* =====================================================
+   CSS VARIABLES & THEMING
+   ===================================================== */
+
+:root {
+  --color-primary: 58, 130, 246;
+  --color-secondary: 139, 92, 246;
+  --color-success: 16, 185, 129;
+  --color-warning: 245, 158, 11;
+  --color-error: 239, 68, 68;
+  --transition-smooth: cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-bounce: cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  --shadow-xs: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  --shadow-glass: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+}
+
+[data-theme='business'] {
+  --color-primary: 59, 130, 246;
+  --color-secondary: 139, 92, 246;
+  --color-success: 16, 185, 129;
+  --color-warning: 245, 158, 11;
+  --color-error: 239, 68, 68;
+}
+
+/* =====================================================
+   BASE STYLES
+   ===================================================== */
+
+@layer base {
+  html {
+    @apply scroll-smooth;
+    color-scheme: light;
+  }
+
+  html[data-theme='business'] {
+    color-scheme: dark;
+  }
+
+  body {
+    @apply min-h-screen overflow-x-hidden;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+    touch-action: manipulation;
+    background:
+      radial-gradient(circle at 20% 0%, rgba(59, 130, 246, 0.15), transparent 30%),
+      radial-gradient(circle at 100% 20%, rgba(139, 92, 246, 0.08), transparent 40%),
+      radial-gradient(circle at 80% 100%, rgba(16, 185, 129, 0.08), transparent 35%),
+      linear-gradient(180deg, rgba(255, 255, 255, 0.6), rgba(255, 255, 255, 0.3));
+  }
+
+  [data-theme='business'] body {
+    background:
+      radial-gradient(circle at 20% 0%, rgba(59, 130, 246, 0.1), transparent 30%),
+      radial-gradient(circle at 100% 20%, rgba(139, 92, 246, 0.06), transparent 40%),
+      radial-gradient(circle at 80% 100%, rgba(244, 114, 182, 0.06), transparent 35%),
+      linear-gradient(180deg, rgba(3, 7, 18, 0.6), rgba(3, 7, 18, 0.3));
+  }
+
+  ::selection {
+    @apply bg-primary/20 text-base-content;
+  }
+
+  button,
+  input,
+  textarea,
+  select {
+    font-family: inherit;
+  }
+
+  input::placeholder,
+  textarea::placeholder {
+    @apply opacity-60;
+  }
+
+  /* Smooth scrollbar */
+  ::-webkit-scrollbar {
+    @apply w-2 h-2;
+  }
+
+  ::-webkit-scrollbar-track {
+    @apply bg-base-200;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    @apply bg-base-300 rounded-full hover:bg-base-content/30;
+  }
+}
+
+/* =====================================================
+   COMPONENT STYLES
+   ===================================================== */
+
+@layer components {
+  /* Interactive Elements - Enhanced Focus States */
+  .btn-interactive {
+    @apply relative transition-all duration-200;
+    &:focus-visible {
+      @apply outline-2 outline-offset-2 outline-primary;
+    }
+    &:active {
+      @apply scale-95;
+    }
+  }
+
+  /* Cards with Glass Effect */
+  .card-glass {
+    @apply bg-white/70 backdrop-blur-md border border-white/30;
+    box-shadow: var(--shadow-glass);
+  }
+
+  @media (prefers-color-scheme: dark) {
+    .card-glass {
+      @apply bg-slate-800/40 border-slate-700/30;
+    }
+  }
+
+  .card-elevated {
+    @apply bg-base-100 rounded-2xl border border-base-200 shadow-md hover:shadow-lg transition-shadow duration-300;
+  }
+
+  .card-minimal {
+    @apply bg-base-100/50 rounded-xl border border-base-200/50;
+  }
+
+  /* Tags & Badges */
+  .tag-badge {
+    @apply inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-medium text-sm;
+    @apply transition-all duration-200;
+    opacity: 0.95;
+    &:hover {
+      @apply shadow-md opacity-100;
+    }
+  }
+
+  .badge-primary {
+    @apply bg-primary/10 text-primary;
+  }
+
+  .badge-secondary {
+    @apply bg-secondary/10 text-secondary;
+  }
+
+  .badge-success {
+    @apply bg-success/10 text-success;
+  }
+
+  /* Skeleton Loading */
+  .skeleton {
+    @apply animate-pulse rounded-lg bg-base-300;
+  }
+
+  .skeleton-text {
+    @apply skeleton h-4 w-full mb-2;
+    &:last-child {
+      @apply mb-0;
+    }
+  }
+
+  .skeleton-circle {
+    @apply skeleton h-12 w-12 rounded-full;
+  }
+
+  /* Form Elements - Enhanced Styling */
+  .input-modern {
+    @apply w-full px-4 py-2.5 rounded-lg border border-base-300 bg-base-100;
+    @apply transition-all duration-200;
+    @apply focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20;
+    &::placeholder {
+      @apply text-base-content/40;
+    }
+  }
+
+  .input-modern:disabled {
+    @apply opacity-50 cursor-not-allowed;
+  }
+
+  /* Buttons - Premium Variants */
+  .btn-primary {
+    @apply px-4 py-2.5 bg-primary text-white rounded-lg font-semibold;
+    @apply transition-all duration-200;
+    @apply hover:shadow-lg hover:scale-[1.02];
+    @apply active:scale-95;
+    @apply focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary;
+    @apply disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+
+  .btn-secondary {
+    @apply px-4 py-2.5 bg-secondary text-white rounded-lg font-semibold;
+    @apply transition-all duration-200;
+    @apply hover:shadow-lg hover:scale-[1.02];
+    @apply active:scale-95;
+    @apply focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-secondary;
+  }
+
+  .btn-ghost {
+    @apply px-4 py-2.5 bg-transparent text-base-content rounded-lg font-semibold border-2 border-base-300;
+    @apply transition-all duration-200;
+    @apply hover:bg-base-100 hover:border-base-300;
+    @apply active:scale-95;
+  }
+
+  /* Dividers */
+  .divider-subtle {
+    @apply bg-gradient-to-r from-transparent via-base-300 to-transparent h-px;
+  }
+}
+
+/* =====================================================
+   UTILITY ANIMATIONS & TRANSITIONS
+   ===================================================== */
+
+@layer utilities {
+  /* Smooth Transitions */
+  .transition-smooth {
+    @apply transition-all duration-300;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .transition-bounce {
+    @apply transition-all duration-300;
+    transition-timing-function: cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  }
+
+  /* Positioning Utilities */
+  .center-absolute {
+    @apply absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2;
+  }
+
+  /* Text Truncation */
+  .line-clamp-1 { @apply line-clamp-1; }
+  .line-clamp-2 { @apply line-clamp-2; }
+  .line-clamp-3 { @apply line-clamp-3; }
+
+  /* Glass Effect Utilities */
+  .glass {
+    @apply bg-white/10 backdrop-blur-md;
+  }
+
+  .glass-sm {
+    @apply bg-white/5 backdrop-blur-sm;
+  }
+
+  .glass-lg {
+    @apply bg-white/20 backdrop-blur-lg;
+  }
+
+  /* Responsive Padding Helpers */
+  .px-safe {
+    @apply px-4 sm:px-6 md:px-8 lg:px-12;
+  }
+
+  .py-safe {
+    @apply py-4 sm:py-6 md:py-8;
+  }
+
+  /* Touch-Friendly Targets */
+  .touch-target {
+    @apply min-h-11 min-w-11;
+  }
+
+  /* Elevation/Shadow Utilities */
+  .shadow-soft {
+    @apply shadow-sm hover:shadow-md transition-shadow duration-300;
+  }
+
+  .shadow-elevated {
+    @apply shadow-lg hover:shadow-xl transition-shadow duration-300;
+  }
+}
+
+/* =====================================================
+   DAISYUI COMPONENT CUSTOMIZATION
+   ===================================================== */
+
+.btn {
+  @apply rounded-lg transition-all duration-200;
+  &:disabled {
+    @apply opacity-50 cursor-not-allowed;
+  }
+}
+
+.btn-primary {
+  @apply bg-primary hover:bg-primary/90;
+}
+
+.btn-secondary {
+  @apply bg-secondary hover:bg-secondary/90;
+}
+
+.card {
+  @apply rounded-2xl border border-base-200;
+  backdrop-filter: blur(12px);
+  transition: box-shadow 300ms cubic-bezier(0.4, 0, 0.2, 1);
+  &:hover {
+    @apply shadow-md;
+  }
+}
+
+/* =====================================================
+   RESPONSIVE & MOBILE-FIRST OPTIMIZATIONS
+   ===================================================== */
+
+@media (max-width: 640px) {
+  html {
+    font-size: 14px;
+  }
+
+  body {
+    @apply px-3 py-3;
+  }
+
+  .container {
+    @apply px-0;
+  }
+
+  .hide-mobile {
+    @apply hidden;
+  }
+
+  .show-mobile {
+    @apply block;
+  }
+}
+
+@media (min-width: 641px) and (max-width: 1024px) {
+  .hide-tablet {
+    @apply hidden;
+  }
+}
+
+@media (min-width: 1025px) {
+  .hide-desktop {
+    @apply hidden;
+  }
+
+  .show-desktop {
+    @apply block;
+  }
 }
